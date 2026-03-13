@@ -43,3 +43,16 @@ export function parse(platform: Platform, ids: string, quality: Quality = "flac2
     body: JSON.stringify({ platform, ids, quality }),
   });
 }
+
+/** 获取歌曲详情（免费，不消耗积分） */
+export async function songDetail(platform: Platform, id: string) {
+  return request<{
+    id: string;
+    platform: string;
+    title: string;
+    artist: string;
+    cover: string;
+    album: string;
+    duration: number;
+  }>(`/detail/${platform}/${id}`);
+}

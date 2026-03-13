@@ -11,6 +11,54 @@ function getAudio(): HTMLAudioElement {
   return audio;
 }
 
+/** 上游单曲解析结果 */
+export interface ParseResultItem {
+  id: string;
+  success: boolean;
+  url?: string;
+  info?: { name: string; artist: string; album: string; duration: number };
+  cover?: string;
+  lyrics?: string;
+  actualQuality?: string;
+  requestedQuality?: string;
+  qualityMatch?: boolean;
+  wasDowngraded?: boolean;
+  fileSize?: number;
+  responseTime?: number;
+  expire?: number;
+  fromCache?: boolean;
+}
+
+/** 上游解析响应汇总 */
+export interface ParseResponse {
+  data: ParseResultItem[];
+  total: number;
+  success_count: number;
+  fail_count: number;
+  cache_hit_count: number;
+  cost: number;
+}
+
+/**
+ * 解析 LRC 歌词文本为结构化歌词行
+ */
+function parseLrc(text: string): LyricLine[] {
+  const lines: LyricLine[] = [];
+  const lineRegex = /\[(\d{1,3}):(\d{2})(?:\.(\d{1,3}))?\](.*)/;
+
+  for (const rawLine of text.split("\n")) {
+    const match = rawLine.trim().match(lineRegex);
+    if (match) {
+      const minutes = parseInt(match[1], 10);
+      const seconds = parseInt(match[2], 10);
+      const ms = match[3] ? parseInt(match[3].padEnd(3, "0"), 10) : 0;
+      const time = minutes * 60 + seconds + ms / 1000;
+      lines.push({ time, text: match[4] ?? "" });
+    }
+  }
+  return lines;
+}
+
 export const usePlayerStore = defineStore("player", () => {
   // 状态
   const currentTrack = ref<Track | null>(null);
@@ -24,6 +72,8 @@ export const usePlayerStore = defineStore("player", () => {
   const quality = ref<Quality>("flac24bit");
   const playUrl = ref<string | null>(null);
   const errorMessage = ref("");
+  /** 最近一次解析的完整响应（用于 PlayerView 展示） */
+  const parseResult = ref<ParseResponse | null>(null);
 
   // 计算属性
   const queueIndex = computed(() => {
@@ -65,39 +115,47 @@ export const usePlayerStore = defineStore("player", () => {
     a.volume = volume.value;
   }
 
-  // 解析并播放曲目
+  // 解析并播放曲目（内部方法）
   async function loadAndPlay(track: Track) {
     playState.value = "loading";
     errorMessage.value = "";
     lyrics.value = [];
     rawLyricText.value = null;
     playUrl.value = null;
+    parseResult.value = null;
 
     try {
-      const data = await parse(track.platform, track.sourceId, quality.value) as {
-        items: { id: string; ok: boolean; url?: string; lyric?: string; rawLyricText?: string; quality?: string }[];
-      };
-      const item = data.items?.[0];
-      if (!item || !item.ok || !item.url) {
+      // 上游新格式：data.data[] 而非 data.items[]
+      const data = await parse(track.platform, track.sourceId, quality.value) as ParseResponse;
+      parseResult.value = data;
+
+      const item = data.data?.[0];
+      if (!item || !item.success || !item.url) {
         playState.value = "error";
-        errorMessage.value = item?.message ?? "无法获取播放链接";
+        errorMessage.value = "无法获取播放链接";
         return;
       }
 
       playUrl.value = item.url;
 
-      // 解析歌词
-      if (item.lyric) {
-        try {
-          const parsed = JSON.parse(item.lyric) as LyricLine[];
-          lyrics.value = parsed;
-        } catch {
-          lyrics.value = [];
-          rawLyricText.value = item.lyric;
-        }
+      // 用解析结果更新曲目元数据（封面、标题、歌手等）
+      if (item.info && currentTrack.value) {
+        if (item.info.name) currentTrack.value.title = item.info.name;
+        if (item.info.artist) currentTrack.value.artist = item.info.artist;
+        if (item.info.duration) currentTrack.value.duration = item.info.duration;
       }
-      if (item.rawLyricText) {
-        rawLyricText.value = item.rawLyricText;
+      if (item.cover && currentTrack.value) {
+        currentTrack.value.cover = item.cover;
+      }
+
+      // 解析歌词（上游返回原始 LRC 文本）
+      if (item.lyrics) {
+        const parsed = parseLrc(item.lyrics);
+        if (parsed.length > 0) {
+          lyrics.value = parsed;
+        } else {
+          rawLyricText.value = item.lyrics;
+        }
       }
 
       // 播放
@@ -111,21 +169,44 @@ export const usePlayerStore = defineStore("player", () => {
     }
   }
 
-  // 监听 currentTrack 变化自动解析播放
-  watch(currentTrack, (track) => {
-    if (track) loadAndPlay(track);
-  });
-
   // 监听音量变化
   watch(volume, (v) => {
     const a = getAudio();
     a.volume = v;
   });
 
-  /** 播放指定曲目，可选传入新队列 */
+  /** 仅查看曲目（不触发解析，用于进入详情页） */
+  function viewTrack(track: Track, newQueue?: Track[]) {
+    if (newQueue) queue.value = newQueue;
+    // 如果切换了曲目，重置播放状态
+    if (!currentTrack.value || currentTrack.value.id !== track.id) {
+      playState.value = "idle";
+      playUrl.value = null;
+      lyrics.value = [];
+      rawLyricText.value = null;
+      errorMessage.value = "";
+      progress.value = 0;
+      duration.value = 0;
+      parseResult.value = null;
+      // 停止当前播放
+      const a = getAudio();
+      a.pause();
+      a.removeAttribute("src");
+    }
+    currentTrack.value = track;
+  }
+
+  /** 手动解析当前曲目（用户点击"解析"按钮时调用） */
+  async function manualParse() {
+    if (!currentTrack.value) return;
+    await loadAndPlay(currentTrack.value);
+  }
+
+  /** 播放指定曲目（自动解析，用于列表播放按钮、上下曲切换） */
   function playTrack(track: Track, newQueue?: Track[]) {
     if (newQueue) queue.value = newQueue;
     currentTrack.value = track;
+    loadAndPlay(track);
   }
 
   /** 播放/暂停切换 */
@@ -151,7 +232,9 @@ export const usePlayerStore = defineStore("player", () => {
       playState.value = "idle";
       return;
     }
-    currentTrack.value = queue.value[queueIndex.value + 1];
+    const nextTrack = queue.value[queueIndex.value + 1];
+    currentTrack.value = nextTrack;
+    loadAndPlay(nextTrack);
   }
 
   /** 上一首 */
@@ -160,14 +243,16 @@ export const usePlayerStore = defineStore("player", () => {
       seek(0);
       return;
     }
-    currentTrack.value = queue.value[queueIndex.value - 1];
+    const prevTrack = queue.value[queueIndex.value - 1];
+    currentTrack.value = prevTrack;
+    loadAndPlay(prevTrack);
   }
 
   /** 切换音质并重新解析当前曲目 */
   function setQuality(q: Quality) {
     if (q === quality.value) return;
     quality.value = q;
-    if (currentTrack.value) {
+    if (currentTrack.value && playUrl.value) {
       loadAndPlay(currentTrack.value);
     }
   }
@@ -175,7 +260,8 @@ export const usePlayerStore = defineStore("player", () => {
   return {
     currentTrack, queue, playState, progress, duration,
     volume, lyrics, rawLyricText, quality, playUrl, errorMessage,
+    parseResult,
     queueIndex, hasNext, hasPrev,
-    playTrack, togglePlay, seek, next, prev, setQuality,
+    viewTrack, manualParse, playTrack, togglePlay, seek, next, prev, setQuality,
   };
 });

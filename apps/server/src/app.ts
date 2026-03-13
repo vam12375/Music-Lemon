@@ -5,6 +5,8 @@ import { healthRouter } from "./routes/health";
 import { methodsRouter } from "./routes/methods";
 import { execRouter } from "./routes/exec";
 import { parseRouter } from "./routes/parse";
+import { detailRouter } from "./routes/detail";
+import { downloadRouter } from "./routes/download";
 import { AppError } from "./errors";
 
 export function createApp() {
@@ -23,6 +25,8 @@ export function createApp() {
   app.use("/api/methods", methodsRouter);
   app.use("/api/exec", execRouter);
   app.use("/api/parse", parseRouter);
+  app.use("/api/detail", detailRouter);
+  app.use("/api/download", downloadRouter);
 
   // 全局错误处理
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
