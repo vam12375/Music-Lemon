@@ -3,6 +3,7 @@ import cors from "cors";
 import { config } from "./config";
 import { healthRouter } from "./routes/health";
 import { methodsRouter } from "./routes/methods";
+import { execRouter } from "./routes/exec";
 import { AppError } from "./errors";
 
 export function createApp() {
@@ -19,6 +20,7 @@ export function createApp() {
   // 路由
   app.use("/api/health", healthRouter);
   app.use("/api/methods", methodsRouter);
+  app.use("/api/exec", execRouter);
 
   // 全局错误处理
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
