@@ -1,0 +1,11 @@
+{
+  "name": "tunehub-visual-site",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev:server": "npm -w apps/server run dev",
+    "dev:web": "npm -w apps/web run dev",
+    "test:server": "npm -w apps/server run test",
+    "test:web": "npm -w apps/web run test"
+  }
+}
