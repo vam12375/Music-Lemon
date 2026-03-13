@@ -24,7 +24,7 @@
 - **⚡ 高性能渐进式解析层**
   - **Node.js 代理层**：内置 `NodeCache` 进程内 LRU 缓存系统，极大减少对上游 API 的重复请求，降低延迟。
   - **动态降级策略**：当请求高质量音质超时或失败时，支持透明回退与解析展示，保障播放连续性。
-  - **API Key 保护**：通过后端 Express 中间件隐藏与注入 `MUSIC_LEMON_API_KEY`，前端对密钥零感知。
+  - **API Key 保护**：通过后端 Express 中间件隐藏与注入 `TUNEHUB_API_KEY`，前端对密钥零感知。
 
 ---
 
@@ -77,18 +77,18 @@ npm install
 # Server Port
 PORT=3000
 
-# Music-Lemon (TuneHub) API 凭证
-MUSIC_LEMON_API_KEY=your_tunehub_api_key_here
-MUSIC_LEMON_BASE_URL=https://tunehub.sayqz.com/api
+# TuneHub API 凭证
+TUNEHUB_API_KEY=your_tunehub_api_key_here
+TUNEHUB_BASE_URL=https://tunehub.sayqz.com/api
 
 # 缓存配置 (可选)
-CACHE_TTL_MS=300000   # 缓存时间(毫秒)，默认 5 分钟
-CACHE_MAX_ITEMS=500   # 最大缓存条目数
+CACHE_TTL_S=86400       # 缓存时间(秒)，默认 24 小时
+CACHE_MAX_ITEMS=500     # 最大缓存条目数
 
 # CORS 配置 (限制允许跨域的源)
 CORS_ORIGIN=http://localhost:5173
 ```
-> **注**：`MUSIC_LEMON_BASE_URL` 默认已配置为官方上游 `https://tunehub.sayqz.com/api`。
+> **注**：`TUNEHUB_BASE_URL` 默认已配置为官方上游 `https://tunehub.sayqz.com/api`。
 
 #### 前端配置 (`apps/web/.env.development`)
 在 `apps/web` 目录下创建 `.env.development`：
@@ -159,7 +159,7 @@ npm run build
 1. **发起请求**：用户在前端 (`web`) 触发搜索/播放等操作，前端调用自身的统一 API Client (`http://localhost:3000/api/v1/xxx`)。
 2. **代理拦截**：请求到达本地后端代理 (`server`)。
 3. **缓存命中**：后端检查 LRU 缓存。若命中，则直接返回，降低延迟。
-4. **鉴权与转发**：若未命中缓存，代理层读取环境变量 `MUSIC_LEMON_API_KEY`，将其注入请求头，并转发至真正的上游服务 (`https://tunehub.sayqz.com/api/v1/xxx`)。
+4. **鉴权与转发**：若未命中缓存，代理层读取环境变量 `TUNEHUB_API_KEY`，将其注入请求头，并转发至真正的上游服务 (`https://tunehub.sayqz.com/api/v1/xxx`)。
 5. **数据返回**：上游返回数据后，代理层将其缓存并透传给前端。
 6. **归一化渲染**：前端 `adapters` 模块将各平台参差不齐的数据结构格式化为统一的 `Track` 或 `Playlist` 接口对象，交由 Vue 组件渲染。
 

@@ -3,7 +3,7 @@ import { config } from "./config";
 
 const store = new LRUCache<string, unknown>({
   max: config.cacheMax,
-  ttl: config.cacheTtl,
+  ttl: config.cacheTtlSec * 1000, // 秒转毫秒
 });
 
 /**
