@@ -1,7 +1,7 @@
 import { ref, watch } from "vue";
 import type { Platform } from "@/types";
 
-const STORAGE_KEY = "tunehub_platform";
+const STORAGE_KEY = "music-lemon_platform";
 
 function loadPlatform(): Platform {
   const saved = localStorage.getItem(STORAGE_KEY);

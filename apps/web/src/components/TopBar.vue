@@ -2,7 +2,7 @@
   <header class="top-bar">
     <div class="top-bar__inner">
       <!-- Logo -->
-      <router-link to="/" class="top-bar__logo">TuneHub</router-link>
+      <router-link to="/" class="top-bar__logo">Music-Lemon</router-link>
 
       <!-- 导航 -->
       <nav class="top-bar__nav">

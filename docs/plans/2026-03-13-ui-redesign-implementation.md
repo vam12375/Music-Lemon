@@ -1,4 +1,4 @@
-# TuneHub UI Dark Theme Redesign — Implementation Plan
+# Music-Lemon UI Dark Theme Redesign — Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 

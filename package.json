@@ -1,5 +1,5 @@
 {
-  "name": "tunehub-visual-site",
+  "name": "music-lemon-visual-site",
   "private": true,
   "workspaces": ["apps/*"],
   "scripts": {

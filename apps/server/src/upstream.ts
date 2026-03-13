@@ -8,7 +8,7 @@ interface UpstreamResponse {
 }
 
 /**
- * 调用上游 TuneHub API
+ * 调用上游 Music-Lemon API
  * @param path - 路径，如 /v1/methods/netease/search
  * @param options - fetch 选项（method/body/headers）
  * @param retryOnGet - GET 请求失败时是否重试一次

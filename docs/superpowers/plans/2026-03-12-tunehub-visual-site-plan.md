@@ -1,4 +1,4 @@
-﻿# TuneHub 可视化音乐发现网站 Implementation Plan
+﻿# Music-Lemon 可视化音乐发现网站 Implementation Plan
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -43,7 +43,7 @@ New-Item -ItemType Directory -Force -Path apps/web | Out-Null
 
 ```json
 {
-  "name": "tunehub-visual-site",
+  "name": "music-lemon-visual-site",
   "private": true,
   "workspaces": ["apps/*"],
   "scripts": {
@@ -88,7 +88,7 @@ Expected: 若不是 Git 仓库则跳过此步。
 
 ```json
 {
-  "name": "tunehub-server",
+  "name": "music-lemon-server",
   "private": true,
   "type": "module",
   "scripts": {

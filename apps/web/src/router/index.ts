@@ -9,7 +9,7 @@ const router = createRouter({
     { path: "/search/:platform", name: "search", component: () => import("@/views/SearchView.vue") },
     { path: "/search", redirect: () => {
       // 从本地存储读取上次使用的平台，默认网易云
-      const saved = localStorage.getItem("tunehub_platform") || "netease";
+      const saved = localStorage.getItem("music-lemon_platform") || "netease";
       return `/search/${saved}`;
     }},
     { path: "/player/:platform/:sourceId", name: "player", component: () => import("@/views/PlayerView.vue") },

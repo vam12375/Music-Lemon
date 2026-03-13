@@ -1,9 +1,9 @@
-﻿# TuneHub 可视化音乐发现网站 - 设计说明
+﻿# Music-Lemon 可视化音乐发现网站 - 设计说明
 
 日期：2026-03-12
 
 ## 背景与目标
-本项目基于 TuneHub V3 API，构建一个桌面端优先的“音乐发现与播放”可视化网站。
+本项目基于 Music-Lemon V3 API，构建一个桌面端优先的“音乐发现与播放”可视化网站。
 目标是以榜单为主入口，覆盖搜索、榜单、歌单与歌曲解析播放，提供清爽极简的视觉体验。
 
 ## 范围与非目标
@@ -30,7 +30,7 @@
 
 边界：
 1. 浏览器仅调用 `/api/*`
-2. 代理层负责携带 `X-API-Key` 与上游 TuneHub 通讯
+2. 代理层负责携带 `X-API-Key` 与上游 Music-Lemon 通讯
 3. 搜索/榜单/歌单的数据归一化在前端完成
 4. 播放解析由后端负责质量降级并返回统一 items 结构
 
@@ -52,8 +52,8 @@
 3. 播放页平台切换控件禁用，不更新 `localStorage`
 
 环境变量建议：
-1. `TUNEHUB_API_KEY`
-2. `TUNEHUB_BASE_URL`（默认值为上面的 Base URL）
+1. `MUSIC_LEMON_API_KEY`
+2. `MUSIC_LEMON_BASE_URL`（默认值为上面的 Base URL）
 3. `CACHE_TTL_MS=300000`
 4. `CACHE_MAX_ITEMS=500`
 5. `CORS_ORIGIN`（默认 `http://localhost:5173`）
@@ -150,7 +150,7 @@ CORS：
 ## 方法下发执行策略
 策略：后端执行上游请求并返回原始数据，前端解析与归一化。
 
-上游方法配置结构（来自 `${TUNEHUB_BASE_URL}/v1/methods/:platform/:function`）：
+上游方法配置结构（来自 `${MUSIC_LEMON_BASE_URL}/v1/methods/:platform/:function`）：
 ```
 {
   "code": 0,
@@ -200,7 +200,7 @@ CORS：
 2. search.pageSize=30
 
 ## 解析接口对接规则
-上游接口：`${TUNEHUB_BASE_URL}/v1/parse`
+上游接口：`${MUSIC_LEMON_BASE_URL}/v1/parse`
 
 ids 规范化：
 1. 支持字符串或数组

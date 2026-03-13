@@ -1,8 +1,8 @@
 开发者文档
-TuneHub V3 API Reference
+Music-Lemon V3 API Reference
 
 平台概述
-TuneHub V3 是一个高性能音乐解析中间件，旨在为开发者提供统一、标准化的多平台音乐数据访问能力。
+Music-Lemon V3 是一个高性能音乐解析中间件，旨在为开发者提供统一、标准化的多平台音乐数据访问能力。
 
 网易云音乐
 QQ音乐

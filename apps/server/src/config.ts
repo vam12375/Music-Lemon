@@ -1,10 +1,10 @@
 import "dotenv/config";
 
 export const config = {
-  /** 上游 TuneHub API Key */
-  apiKey: process.env.TUNEHUB_API_KEY ?? "",
+  /** 上游 Music-Lemon API Key */
+  apiKey: process.env.MUSIC_LEMON_API_KEY ?? "",
   /** 上游 Base URL */
-  baseUrl: process.env.TUNEHUB_BASE_URL ?? "https://tunehub.sayqz.com/api",
+  baseUrl: process.env.MUSIC_LEMON_BASE_URL ?? "https://tunehub.sayqz.com/api",
   /** 缓存 TTL（毫秒） */
   cacheTtl: Number(process.env.CACHE_TTL_MS ?? 300_0000),
   /** 缓存最大条目数 */
