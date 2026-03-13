@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
 import type { Track, LyricLine, PlayState, Quality } from "@/types";
 import { parse } from "@/api/client";
+import { useRecentTracks } from "@/composables/useRecentTracks";
 
 // 全局 Audio 实例
 let audio: HTMLAudioElement | null = null;
@@ -123,6 +124,10 @@ export const usePlayerStore = defineStore("player", () => {
     rawLyricText.value = null;
     playUrl.value = null;
     parseResult.value = null;
+
+    // 记录到最近播放（所有播放路径的公共入口）
+    const { addRecent } = useRecentTracks();
+    addRecent(track);
 
     try {
       // 上游新格式：data.data[] 而非 data.items[]

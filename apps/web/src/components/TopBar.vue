@@ -8,6 +8,7 @@
       <nav class="top-bar__nav">
         <router-link to="/" class="top-bar__link">发现</router-link>
         <router-link :to="`/search/${currentPlatform}`" class="top-bar__link">搜索</router-link>
+        <router-link to="/recent" class="top-bar__link">最近</router-link>
       </nav>
 
       <!-- ID 解析入口 -->

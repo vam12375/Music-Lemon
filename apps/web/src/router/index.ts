@@ -13,6 +13,7 @@ const router = createRouter({
       return `/search/${saved}`;
     }},
     { path: "/player/:platform/:sourceId", name: "player", component: () => import("@/views/PlayerView.vue") },
+    { path: "/recent", name: "recent", component: () => import("@/views/RecentView.vue") },
   ],
 });
 
