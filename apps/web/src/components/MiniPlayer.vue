@@ -1,5 +1,5 @@
 <template>
-  <div v-if="store.currentTrack" class="mini-player">
+  <div v-if="store.currentTrack" class="mini-player" :style="{ '--mini-progress': progressPercent }">
     <div class="mini-player__inner">
       <!-- 曲目信息 -->
       <router-link
@@ -85,6 +85,11 @@ const playIcon = computed(() => {
   }
 });
 
+const progressPercent = computed(() => {
+  if (!store.duration || store.duration === 0) return '0%';
+  return `${(store.progress / store.duration) * 100}%`;
+});
+
 function formatTime(sec: number): string {
   if (!sec || isNaN(sec)) return "0:00";
   const m = Math.floor(sec / 60);
@@ -113,10 +118,21 @@ function onQuality(e: Event) {
   left: 0;
   right: 0;
   height: 72px;
-  background: #fff;
-  border-top: 1px solid #E5E7EB;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--border-subtle);
   z-index: 200;
-  box-shadow: 0 -2px 12px rgba(0,0,0,.05);
+}
+.mini-player::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--gradient-accent);
+  width: var(--mini-progress, 0%);
+  transition: width 0.3s linear;
 }
 .mini-player__inner {
   max-width: 1200px;
@@ -138,7 +154,7 @@ function onQuality(e: Event) {
 .mini-player__cover {
   width: 48px;
   height: 48px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   object-fit: cover;
 }
 .mini-player__text { min-width: 0; }
@@ -148,10 +164,11 @@ function onQuality(e: Event) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--text-primary);
 }
 .mini-player__artist {
   font-size: 12px;
-  color: #6B7280;
+  color: var(--text-secondary);
 }
 .mini-player__controls {
   display: flex;
@@ -169,16 +186,23 @@ function onQuality(e: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-secondary);
+  transition: color .15s;
 }
+.mini-player__btn:hover { color: var(--text-primary); }
 .mini-player__btn:disabled { opacity: .3; cursor: not-allowed; }
 .mini-player__btn--main {
   width: 40px;
   height: 40px;
-  background: #2563EB;
-  color: #fff;
+  background: var(--gradient-accent);
+  color: var(--bg-deep);
   font-size: 16px;
+  transition: transform .15s, box-shadow .15s;
 }
-.mini-player__btn--main:hover { background: #1D4ED8; }
+.mini-player__btn--main:hover {
+  transform: scale(1.08);
+  box-shadow: var(--shadow-glow);
+}
 .mini-player__progress {
   flex: 1;
   display: flex;
@@ -187,7 +211,7 @@ function onQuality(e: Event) {
 }
 .mini-player__time {
   font-size: 12px;
-  color: #9CA3AF;
+  color: var(--text-muted);
   min-width: 36px;
   text-align: center;
 }
@@ -196,7 +220,7 @@ function onQuality(e: Event) {
   height: 4px;
   -webkit-appearance: none;
   appearance: none;
-  background: #E5E7EB;
+  background: var(--bg-hover);
   border-radius: 2px;
   outline: none;
   cursor: pointer;
@@ -206,7 +230,8 @@ function onQuality(e: Event) {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #2563EB;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 .mini-player__volume { width: 80px; }
 .mini-player__vol-slider {
@@ -214,7 +239,7 @@ function onQuality(e: Event) {
   height: 4px;
   -webkit-appearance: none;
   appearance: none;
-  background: #E5E7EB;
+  background: var(--bg-hover);
   border-radius: 2px;
   outline: none;
   cursor: pointer;
@@ -224,22 +249,22 @@ function onQuality(e: Event) {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #6B7280;
+  background: var(--text-secondary);
 }
 .mini-player__quality {
   height: 32px;
   padding: 0 8px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--border-subtle);
   border-radius: 6px;
-  background: #fff;
+  background: var(--bg-card);
   font-size: 12px;
-  color: #374151;
+  color: var(--text-secondary);
   cursor: pointer;
   outline: none;
 }
-.mini-player__quality:focus { border-color: #2563EB; }
+.mini-player__quality:focus { border-color: var(--accent); }
+.mini-player__quality option { background: var(--bg-card); color: var(--text-primary); }
 
-/* 响应式 */
 @media (max-width: 768px) {
   .mini-player__inner { padding: 0 12px; gap: 12px; }
   .mini-player__info { min-width: 120px; }

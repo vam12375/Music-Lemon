@@ -24,6 +24,7 @@
       <TrackList
         :tracks="playlist.tracks"
         :playing-id="playerStore.currentTrack?.id"
+        @view="onView"
         @play="onPlay"
       />
     </template>
@@ -67,6 +68,12 @@ async function fetchPlaylist() {
   }
 }
 
+function onView(track: Track) {
+  if (playlist.value) {
+    playerStore.viewTrack(track, playlist.value.tracks);
+  }
+}
+
 function onPlay(track: Track) {
   if (playlist.value) {
     playerStore.playTrack(track, playlist.value.tracks);
@@ -86,7 +93,7 @@ watch(() => route.params.id, fetchPlaylist);
 .chart-view__cover {
   width: 200px;
   height: 200px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -98,11 +105,13 @@ watch(() => route.params.id, fetchPlaylist);
 }
 .chart-view__meta h2 {
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 .chart-view__desc {
   font-size: 14px;
-  color: #6B7280;
+  color: var(--text-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -110,12 +119,12 @@ watch(() => route.params.id, fetchPlaylist);
 }
 .chart-view__count {
   font-size: 13px;
-  color: #9CA3AF;
+  color: var(--text-muted);
 }
 .chart-view__loading {
   text-align: center;
   padding: 64px 0;
-  color: #6B7280;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 768px) {

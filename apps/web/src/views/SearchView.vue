@@ -24,6 +24,7 @@
       <TrackList
         :tracks="tracks"
         :playing-id="playerStore.currentTrack?.id"
+        @view="onView"
         @play="onPlay"
       />
       <div class="search-view__more">
@@ -109,6 +110,10 @@ function loadMore() {
   doSearch(false);
 }
 
+function onView(track: Track) {
+  playerStore.viewTrack(track, tracks.value);
+}
+
 function onPlay(track: Track) {
   playerStore.playTrack(track, tracks.value);
 }
@@ -131,45 +136,54 @@ watch(() => route.params.platform, () => {
   flex: 1;
   height: 44px;
   padding: 0 16px;
-  border: 1px solid #E5E7EB;
-  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
   font-size: 15px;
   outline: none;
-  background: #fff;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  transition: border-color .15s, box-shadow .15s;
 }
-.search-view__input:focus { border-color: #2563EB; }
+.search-view__input::placeholder { color: var(--text-muted); }
+.search-view__input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
 .search-view__btn {
   height: 44px;
   padding: 0 24px;
   border: none;
-  border-radius: 10px;
-  background: #2563EB;
-  color: #fff;
+  border-radius: var(--radius-md);
+  background: var(--gradient-accent);
+  color: var(--bg-deep);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+  transition: opacity .15s;
 }
-.search-view__btn:hover { background: #1D4ED8; }
-.search-view__btn:disabled { opacity: .5; cursor: not-allowed; }
+.search-view__btn:hover { opacity: 0.85; }
+.search-view__btn:disabled { opacity: .4; cursor: not-allowed; }
 .search-view__more {
   text-align: center;
   padding: 24px 0;
 }
 .search-view__more-btn {
   padding: 10px 32px;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 14px;
+  transition: background .15s, border-color .15s;
 }
-.search-view__more-btn:hover { background: #F3F4F6; }
-.search-view__more-btn:disabled { opacity: .5; cursor: not-allowed; }
-.search-view__no-more { color: #9CA3AF; font-size: 14px; }
+.search-view__more-btn:hover { background: var(--bg-hover); border-color: var(--border-active); }
+.search-view__more-btn:disabled { opacity: .4; cursor: not-allowed; }
+.search-view__no-more { color: var(--text-muted); font-size: 14px; }
 .search-view__empty,
 .search-view__loading {
   text-align: center;
   padding: 64px 0;
-  color: #6B7280;
+  color: var(--text-secondary);
 }
 </style>
