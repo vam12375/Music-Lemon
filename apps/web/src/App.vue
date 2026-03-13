@@ -4,11 +4,13 @@
     <main class="main-content">
       <router-view />
     </main>
+    <MiniPlayer />
   </div>
 </template>
 
 <script setup lang="ts">
 import TopBar from "@/components/TopBar.vue";
+import MiniPlayer from "@/components/MiniPlayer.vue";
 </script>
 
 <style>
@@ -33,7 +35,7 @@ body {
 .main-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 24px 24px 96px;
   min-height: calc(100vh - 64px);
 }
 
