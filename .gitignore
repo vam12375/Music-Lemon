@@ -5,3 +5,5 @@ dist/
 *.log
 .superpowers/
 .worktrees/
+.claude/
+.sanshu-memory/
