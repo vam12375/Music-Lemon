@@ -186,7 +186,14 @@ execRouter.post("/", async (req, res, next) => {
       data: { raw, contentType, platform: platformLower, function: fnLower },
     };
 
-    cacheSet(cacheKey, response);
+    // 仅缓存平台正常响应，跳过含错误码的响应
+    const rawObj = raw as Record<string, unknown> | null;
+    const platformCode = rawObj?.code;
+    const isError = typeof platformCode === "number" && platformCode !== 0 && platformCode !== 200;
+    if (!isError) {
+      cacheSet(cacheKey, response);
+    }
+
     res.json(response);
   } catch (err) {
     next(err);

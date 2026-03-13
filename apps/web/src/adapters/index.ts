@@ -53,15 +53,17 @@ export function adaptCharts(raw: unknown, platform: Platform): Chart[] {
 // ============ 搜索 (search) → Track[] ============
 
 function neteaseTrack(item: Record<string, unknown>, platform: Platform): Track {
-  const ar = item.ar as { name: string }[] | undefined;
-  const al = item.al as { picUrl?: string } | undefined;
+  // 兼容新版 (ar/al/dt) 和旧版 (artists/album/duration) 两种响应结构
+  const ar = (item.ar ?? item.artists) as { name: string }[] | undefined;
+  const al = (item.al ?? item.album) as { picUrl?: string } | undefined;
   const sourceId = String(item.id ?? item.songId ?? "");
+  const rawDur = item.dt ?? item.duration;
   return {
     id: `${platform}:${sourceId}`,
     title: String(item.name ?? ""),
     artist: ar?.[0]?.name ?? "",
     cover: al?.picUrl ?? "",
-    duration: typeof item.dt === "number" ? item.dt / 1000 : 0,
+    duration: typeof rawDur === "number" ? rawDur / 1000 : 0,
     platform,
     sourceId,
   };
@@ -130,13 +132,25 @@ export function adaptSearchTracks(raw: unknown, platform: Platform): Track[] {
 
 function parseNeteasePlaylist(raw: unknown, platform: Platform): Playlist {
   const data = raw as {
+    code?: number;
+    message?: string;
+    msg?: string;
+    result?: {
+      id: number; name: string; coverImgUrl?: string; description?: string;
+      tracks?: Record<string, unknown>[];
+    };
     playlist?: {
       id: number; name: string; coverImgUrl?: string; description?: string;
       tracks?: Record<string, unknown>[];
     };
   };
-  const pl = data.playlist;
-  if (!pl) throw new Error("无法解析 netease playlist");
+  // 检测平台错误码
+  if (data.code !== undefined && data.code !== 200 && data.code !== 0) {
+    throw new Error(data.message ?? data.msg ?? `网易云返回错误 (code: ${data.code})`);
+  }
+  // 兼容 result / playlist 两种响应结构
+  const pl = data.result ?? data.playlist;
+  if (!pl) throw new Error("无法解析网易云歌单数据");
   const cover = pl.coverImgUrl ?? "";
   return {
     id: String(pl.id),
@@ -146,7 +160,6 @@ function parseNeteasePlaylist(raw: unknown, platform: Platform): Playlist {
     platform,
     tracks: (pl.tracks ?? []).map((t) => {
       const track = adaptTrack(t, platform);
-      // 列表 track 缺封面时回退到所属榜单/歌单封面
       if (!track.cover) track.cover = cover;
       return track;
     }),
