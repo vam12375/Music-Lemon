@@ -48,4 +48,11 @@ img {
   display: block;
   max-width: 100%;
 }
+
+/* 响应式 - 平板 */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px 16px 88px;
+  }
+}
 </style>

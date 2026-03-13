@@ -4,10 +4,12 @@
     <div v-if="loading" class="chart-view__loading">加载中...</div>
 
     <!-- 错误 -->
-    <div v-else-if="error" class="chart-view__error">
-      <p>{{ error }}</p>
-      <button class="chart-view__retry" @click="fetchPlaylist">重试</button>
-    </div>
+    <ErrorState
+      v-else-if="error"
+      :message="errorMsg"
+      :code="errorCode"
+      @retry="fetchPlaylist"
+    />
 
     <!-- 内容 -->
     <template v-else-if="playlist">
@@ -32,29 +34,34 @@
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import type { Playlist, Track, Platform } from "@/types";
-import { exec } from "@/api/client";
+import { exec, ApiError } from "@/api/client";
 import { extractRaw, adaptPlaylist } from "@/adapters";
 import { usePlayerStore } from "@/stores/player";
 import TrackList from "@/components/TrackList.vue";
+import ErrorState from "@/components/ErrorState.vue";
 
 const route = useRoute();
 const playerStore = usePlayerStore();
 const playlist = ref<Playlist | null>(null);
 const loading = ref(false);
-const error = ref("");
+const error = ref(false);
+const errorMsg = ref("");
+const errorCode = ref(0);
 
 async function fetchPlaylist() {
   const platform = route.params.platform as Platform;
   const id = route.params.id as string;
   loading.value = true;
-  error.value = "";
+  error.value = false;
   try {
     const data = await exec(platform, "toplist", { id }) as { raw: unknown; contentType: string };
     const raw = extractRaw(data);
     playlist.value = adaptPlaylist(raw, platform);
     playlist.value.id = id;
   } catch (e) {
-    error.value = e instanceof Error ? e.message : "加载失败";
+    error.value = true;
+    errorMsg.value = e instanceof Error ? e.message : "加载失败";
+    errorCode.value = e instanceof ApiError ? e.code : 0;
   } finally {
     loading.value = false;
   }
@@ -105,18 +112,15 @@ watch(() => route.params.id, fetchPlaylist);
   font-size: 13px;
   color: #9CA3AF;
 }
-.chart-view__loading,
-.chart-view__error {
+.chart-view__loading {
   text-align: center;
   padding: 64px 0;
   color: #6B7280;
 }
-.chart-view__retry {
-  margin-top: 12px;
-  padding: 8px 20px;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
+
+@media (max-width: 768px) {
+  .chart-view__header { gap: 16px; }
+  .chart-view__cover { width: 120px; height: 120px; }
+  .chart-view__meta h2 { font-size: 18px; }
 }
 </style>

@@ -163,10 +163,19 @@ export const usePlayerStore = defineStore("player", () => {
     currentTrack.value = queue.value[queueIndex.value - 1];
   }
 
+  /** 切换音质并重新解析当前曲目 */
+  function setQuality(q: Quality) {
+    if (q === quality.value) return;
+    quality.value = q;
+    if (currentTrack.value) {
+      loadAndPlay(currentTrack.value);
+    }
+  }
+
   return {
     currentTrack, queue, playState, progress, duration,
     volume, lyrics, rawLyricText, quality, playUrl, errorMessage,
     queueIndex, hasNext, hasPrev,
-    playTrack, togglePlay, seek, next, prev,
+    playTrack, togglePlay, seek, next, prev, setQuality,
   };
 });

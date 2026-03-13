@@ -12,7 +12,16 @@
         <h2>{{ store.currentTrack?.title || "未知曲目" }}</h2>
         <p class="player-view__artist">{{ store.currentTrack?.artist || "" }}</p>
         <p class="player-view__quality" v-if="store.playUrl">
-          {{ store.quality }}
+          <select
+            class="player-view__quality-select"
+            :value="store.quality"
+            @change="onQuality"
+          >
+            <option value="128k">128k</option>
+            <option value="320k">320k</option>
+            <option value="flac">FLAC</option>
+            <option value="flac24bit">Hi-Res</option>
+          </select>
         </p>
       </div>
     </div>
@@ -73,7 +82,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick } from "vue";
 import { useRoute } from "vue-router";
-import type { Platform } from "@/types";
+import type { Platform, Quality } from "@/types";
 import { usePlayerStore } from "@/stores/player";
 
 const route = useRoute();
@@ -136,6 +145,10 @@ function formatTime(sec: number): string {
 function onSeek(e: Event) {
   store.seek(Number((e.target as HTMLInputElement).value));
 }
+
+function onQuality(e: Event) {
+  store.setQuality((e.target as HTMLSelectElement).value as Quality);
+}
 </script>
 
 <style scoped>
@@ -169,11 +182,20 @@ function onSeek(e: Event) {
   margin-top: 4px;
 }
 .player-view__quality {
-  font-size: 12px;
-  color: #9CA3AF;
   margin-top: 8px;
-  text-transform: uppercase;
 }
+.player-view__quality-select {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  outline: none;
+}
+.player-view__quality-select:focus { border-color: #2563EB; }
 .player-view__status {
   text-align: center;
   padding: 24px;
@@ -269,5 +291,11 @@ function onSeek(e: Event) {
   text-align: center;
   color: #9CA3AF;
   padding: 32px;
+}
+
+@media (max-width: 768px) {
+  .player-view__header { gap: 16px; }
+  .player-view__cover { width: 100px; height: 100px; }
+  .player-view__meta h2 { font-size: 18px; }
 }
 </style>

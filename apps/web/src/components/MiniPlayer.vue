@@ -53,6 +53,18 @@
           @input="onVolume"
         />
       </div>
+
+      <!-- 音质选择 -->
+      <select
+        class="mini-player__quality"
+        :value="store.quality"
+        @change="onQuality"
+      >
+        <option value="128k">128k</option>
+        <option value="320k">320k</option>
+        <option value="flac">FLAC</option>
+        <option value="flac24bit">Hi-Res</option>
+      </select>
     </div>
   </div>
 </template>
@@ -60,6 +72,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { usePlayerStore } from "@/stores/player";
+import type { Quality } from "@/types";
 
 const store = usePlayerStore();
 
@@ -86,6 +99,10 @@ function onSeek(e: Event) {
 
 function onVolume(e: Event) {
   store.volume = Number((e.target as HTMLInputElement).value);
+}
+
+function onQuality(e: Event) {
+  store.setQuality((e.target as HTMLSelectElement).value as Quality);
 }
 </script>
 
@@ -208,5 +225,26 @@ function onVolume(e: Event) {
   height: 10px;
   border-radius: 50%;
   background: #6B7280;
+}
+.mini-player__quality {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  outline: none;
+}
+.mini-player__quality:focus { border-color: #2563EB; }
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .mini-player__inner { padding: 0 12px; gap: 12px; }
+  .mini-player__info { min-width: 120px; }
+  .mini-player__volume { display: none; }
+  .mini-player__quality { display: none; }
+  .mini-player__time { display: none; }
 }
 </style>

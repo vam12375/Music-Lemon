@@ -178,4 +178,12 @@ function onPlatformChange(p: Platform) {
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(0,0,0,.08);
 }
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .top-bar__inner { padding: 0 12px; gap: 12px; }
+  .top-bar__parse { display: none; }
+  .top-bar__btn--ghost { display: none; }
+  .top-bar__platform-btn { padding: 5px 10px; font-size: 12px; }
+}
 </style>

@@ -2,6 +2,16 @@ import type { Platform, Quality } from "@/types";
 
 const BASE = "/api";
 
+/** 带状态码的 API 错误 */
+export class ApiError extends Error {
+  code: number;
+  constructor(code: number, message: string) {
+    super(message);
+    this.code = code;
+    this.name = "ApiError";
+  }
+}
+
 /** 通用请求封装，自动处理错误码 */
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -10,7 +20,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   });
   const body = await res.json();
   if (body.code !== 0) {
-    throw new Error(body.message || `请求失败 (code: ${body.code})`);
+    throw new ApiError(
+      res.status !== 200 ? res.status : body.code,
+      body.message || `请求失败 (code: ${body.code})`,
+    );
   }
   return body.data as T;
 }

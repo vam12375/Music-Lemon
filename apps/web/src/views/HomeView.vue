@@ -12,10 +12,12 @@
     </div>
 
     <!-- 错误状态 -->
-    <div v-else-if="error" class="home-view__error">
-      <p>{{ error }}</p>
-      <button class="home-view__retry" @click="fetchCharts">重试</button>
-    </div>
+    <ErrorState
+      v-else-if="error"
+      :message="errorMsg"
+      :code="errorCode"
+      @retry="fetchCharts"
+    />
 
     <!-- 空状态 -->
     <div v-else-if="charts.length === 0" class="home-view__empty">
@@ -48,24 +50,29 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
 import type { Chart } from "@/types";
-import { exec } from "@/api/client";
+import { exec, ApiError } from "@/api/client";
 import { extractRaw, adaptCharts } from "@/adapters";
 import { usePlatform } from "@/composables/usePlatform";
+import ErrorState from "@/components/ErrorState.vue";
 
 const { currentPlatform } = usePlatform();
 const charts = ref<Chart[]>([]);
 const loading = ref(false);
-const error = ref("");
+const error = ref(false);
+const errorMsg = ref("");
+const errorCode = ref(0);
 
 async function fetchCharts() {
   loading.value = true;
-  error.value = "";
+  error.value = false;
   try {
     const data = await exec(currentPlatform.value, "toplists") as { raw: unknown; contentType: string };
     const raw = extractRaw(data);
     charts.value = adaptCharts(raw, currentPlatform.value);
   } catch (e) {
-    error.value = e instanceof Error ? e.message : "加载失败";
+    error.value = true;
+    errorMsg.value = e instanceof Error ? e.message : "加载失败";
+    errorCode.value = e instanceof ApiError ? e.code : 0;
   } finally {
     loading.value = false;
   }
@@ -150,20 +157,9 @@ watch(currentPlatform, fetchCharts);
   100% { background-position: -200% 0; }
 }
 
-.home-view__error,
 .home-view__empty {
   text-align: center;
   padding: 64px 0;
   color: #6B7280;
 }
-.home-view__retry {
-  margin-top: 12px;
-  padding: 8px 20px;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 14px;
-}
-.home-view__retry:hover { background: #F3F4F6; }
 </style>

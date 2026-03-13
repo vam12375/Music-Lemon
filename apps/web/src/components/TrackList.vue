@@ -117,4 +117,11 @@ function formatDuration(seconds: number): string {
 }
 .track-item:hover .track-item__play { opacity: 1; }
 .track-item__play:hover { background: #1D4ED8; }
+
+@media (max-width: 768px) {
+  .track-item__index { display: none; }
+  .track-item__duration { display: none; }
+  .track-item__play { opacity: 1; }
+  .track-item { gap: 10px; padding: 8px 8px; }
+}
 </style>
