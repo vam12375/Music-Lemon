@@ -147,6 +147,12 @@ export async function executeUpstreamMethod(
     const raw = await res.json();
     return { raw, contentType };
   }
-  const raw = await res.text();
-  return { raw, contentType };
+  // 部分平台返回 text/plain 但实际内容为 JSON，尝试解析
+  const text = await res.text();
+  try {
+    const raw = JSON.parse(text);
+    return { raw, contentType: "application/json" };
+  } catch {
+    return { raw: text, contentType };
+  }
 }
