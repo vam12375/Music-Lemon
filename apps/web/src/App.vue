@@ -4,6 +4,7 @@
     <main class="main-content">
       <router-view />
     </main>
+    <DownloadPanel />
     <MiniPlayer />
   </div>
 </template>
@@ -11,6 +12,7 @@
 <script setup lang="ts">
 import TopBar from "@/components/TopBar.vue";
 import MiniPlayer from "@/components/MiniPlayer.vue";
+import DownloadPanel from "@/components/DownloadPanel.vue";
 </script>
 
 <style>
