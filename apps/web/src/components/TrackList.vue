@@ -3,14 +3,30 @@
     <div
       v-for="(track, index) in tracks"
       :key="track.id"
-      :class="['track-item', { 'track-item--active': track.id === playingId }]"
+      :class="[
+        'track-item',
+        { 'track-item--active': track.id === playingId },
+        { 'track-item--selected': selectable && selectedIds?.has(track.id) },
+      ]"
+      @click="selectable ? $emit('select', track.id) : undefined"
     >
-      <span class="track-item__index">{{ index + 1 }}</span>
-      <!-- 点击行跳转详情页（仅查看，不解析） -->
-      <router-link
-        :to="`/player/${track.platform}/${track.sourceId}`"
+      <!-- 多选模式：复选框 / 正常模式：序号 -->
+      <label v-if="selectable" class="track-item__checkbox" @click.stop>
+        <input
+          type="checkbox"
+          :checked="selectedIds?.has(track.id)"
+          @change="$emit('select', track.id)"
+        />
+        <span class="track-item__checkmark" />
+      </label>
+      <span v-else class="track-item__index">{{ index + 1 }}</span>
+
+      <!-- 多选模式下不跳转，用 div 替代 router-link -->
+      <component
+        :is="selectable ? 'div' : 'router-link'"
+        :to="selectable ? undefined : `/player/${track.platform}/${track.sourceId}`"
         class="track-item__link"
-        @click="$emit('view', track, index)"
+        @click="selectable ? undefined : $emit('view', track, index)"
       >
         <img
           v-if="track.cover"
@@ -24,9 +40,10 @@
           <p class="track-item__title">{{ track.title }}</p>
           <p class="track-item__artist">{{ track.artist }}</p>
         </div>
-      </router-link>
+      </component>
       <span class="track-item__duration">{{ formatDuration(track.duration) }}</span>
-      <button class="track-item__play" @click.stop="$emit('play', track, index)">
+      <!-- 多选模式下隐藏播放按钮 -->
+      <button v-if="!selectable" class="track-item__play" @click.stop="$emit('play', track, index)">
         ▶
       </button>
     </div>
@@ -39,11 +56,14 @@ import type { Track } from "@/types";
 defineProps<{
   tracks: Track[];
   playingId?: string;
+  selectable?: boolean;       // 是否处于多选模式
+  selectedIds?: Set<string>;  // 已选中的 track.id 集合
 }>();
 
 defineEmits<{
   view: [track: Track, index: number];
   play: [track: Track, index: number];
+  select: [trackId: string];  // 切换选中
 }>();
 
 function formatDuration(seconds: number): string {
@@ -70,6 +90,9 @@ function formatDuration(seconds: number): string {
 }
 .track-item:hover { background: var(--bg-hover); }
 .track-item--active {
+  background: var(--accent-glow);
+}
+.track-item--selected {
   background: var(--accent-glow);
 }
 .track-item--active::before {
@@ -179,6 +202,42 @@ function formatDuration(seconds: number): string {
 }
 .track-item:hover .track-item__play { opacity: 1; }
 .track-item__play:hover { transform: scale(1.1); box-shadow: var(--shadow-glow); }
+
+/* 多选复选框 */
+.track-item__checkbox {
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.track-item__checkbox input {
+  display: none;
+}
+.track-item__checkmark {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--text-muted);
+  border-radius: 4px;
+  transition: all 0.15s;
+  position: relative;
+}
+.track-item__checkbox input:checked + .track-item__checkmark {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.track-item__checkbox input:checked + .track-item__checkmark::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 6px;
+  height: 10px;
+  border: solid var(--bg-deep);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
 
 @media (max-width: 768px) {
   .track-item__index { display: none; }
