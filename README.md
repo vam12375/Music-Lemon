@@ -28,6 +28,22 @@
 
 ---
 
+## 📸 界面预览
+
+| 首页 · 榜单发现 | 搜索 · 跨平台单曲检索 |
+|:---:|:---:|
+| ![首页](image/index.png) | ![搜索](image/search.png) |
+
+| 榜单详情 · 飙升榜 | ID 解析 · 歌曲解析播放 |
+|:---:|:---:|
+| ![榜单详情](image/ranking%20list.png) | ![ID 解析](image/detail.png) |
+
+| 播放详情 · 音质/歌词/下载 |
+|:---:|
+| ![播放详情](image/play.png) |
+
+---
+
 ## 🏗️ 架构与技术栈
 
 项目基于 `npm workspaces` 组织为标准的 Monorepo 架构，前后端分离。
