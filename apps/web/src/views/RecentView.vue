@@ -8,13 +8,18 @@
     </div>
 
     <!-- 列表 -->
-    <TrackList
-      v-else
-      :tracks="recentTracks"
-      :playing-id="playerStore.currentTrack?.id"
-      @view="onView"
-      @play="onPlay"
-    />
+    <template v-else>
+      <SelectToolbar :tracks="recentTracks" />
+      <TrackList
+        :tracks="recentTracks"
+        :playing-id="playerStore.currentTrack?.id"
+        :selectable="downloadStore.isSelectMode"
+        :selected-ids="downloadStore.selectedIds"
+        @view="onView"
+        @play="onPlay"
+        @select="downloadStore.toggleSelect"
+      />
+    </template>
   </div>
 </template>
 
@@ -23,8 +28,11 @@ import type { Track } from "@/types";
 import { usePlayerStore } from "@/stores/player";
 import { useRecentTracks } from "@/composables/useRecentTracks";
 import TrackList from "@/components/TrackList.vue";
+import SelectToolbar from "@/components/SelectToolbar.vue";
+import { useDownloadStore } from "@/stores/download";
 
 const playerStore = usePlayerStore();
+const downloadStore = useDownloadStore();
 const { recentTracks } = useRecentTracks();
 
 function onView(track: Track) {

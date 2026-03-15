@@ -21,11 +21,15 @@
           <p class="chart-view__count">{{ playlist.tracks.length }} 首歌曲</p>
         </div>
       </div>
+      <SelectToolbar :tracks="playlist.tracks" />
       <TrackList
         :tracks="playlist.tracks"
         :playing-id="playerStore.currentTrack?.id"
+        :selectable="downloadStore.isSelectMode"
+        :selected-ids="downloadStore.selectedIds"
         @view="onView"
         @play="onPlay"
+        @select="downloadStore.toggleSelect"
       />
     </template>
   </div>
@@ -40,9 +44,12 @@ import { extractRaw, adaptPlaylist } from "@/adapters";
 import { usePlayerStore } from "@/stores/player";
 import TrackList from "@/components/TrackList.vue";
 import ErrorState from "@/components/ErrorState.vue";
+import SelectToolbar from "@/components/SelectToolbar.vue";
+import { useDownloadStore } from "@/stores/download";
 
 const route = useRoute();
 const playerStore = usePlayerStore();
+const downloadStore = useDownloadStore();
 const playlist = ref<Playlist | null>(null);
 const loading = ref(false);
 const error = ref(false);

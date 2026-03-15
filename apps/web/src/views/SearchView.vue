@@ -21,11 +21,15 @@
 
     <!-- 结果 -->
     <template v-else-if="tracks.length > 0">
+      <SelectToolbar :tracks="tracks" />
       <TrackList
         :tracks="tracks"
         :playing-id="playerStore.currentTrack?.id"
+        :selectable="downloadStore.isSelectMode"
+        :selected-ids="downloadStore.selectedIds"
         @view="onView"
         @play="onPlay"
+        @select="downloadStore.toggleSelect"
       />
       <div class="search-view__more">
         <button
@@ -55,10 +59,13 @@ import { exec } from "@/api/client";
 import { extractRaw, adaptSearchTracks } from "@/adapters";
 import { usePlayerStore } from "@/stores/player";
 import TrackList from "@/components/TrackList.vue";
+import SelectToolbar from "@/components/SelectToolbar.vue";
+import { useDownloadStore } from "@/stores/download";
 
 const route = useRoute();
 const router = useRouter();
 const playerStore = usePlayerStore();
+const downloadStore = useDownloadStore();
 
 const keyword = ref((route.query.kw as string) ?? "");
 const page = ref(Number(route.query.page) || 1);
