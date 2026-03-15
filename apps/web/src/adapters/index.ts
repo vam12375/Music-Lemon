@@ -1,4 +1,5 @@
 import type { Chart, Track, Playlist, Platform } from "@/types";
+import { neteasePicUrl } from "@/utils/netease-pic";
 
 /**
  * 从 exec 原始响应中提取 raw 数据
@@ -55,14 +56,16 @@ export function adaptCharts(raw: unknown, platform: Platform): Chart[] {
 function neteaseTrack(item: Record<string, unknown>, platform: Platform): Track {
   // 兼容新版 (ar/al/dt) 和旧版 (artists/album/duration) 两种响应结构
   const ar = (item.ar ?? item.artists) as { name: string }[] | undefined;
-  const al = (item.al ?? item.album) as { picUrl?: string } | undefined;
+  const al = (item.al ?? item.album) as { picUrl?: string; picId?: number } | undefined;
   const sourceId = String(item.id ?? item.songId ?? "");
   const rawDur = item.dt ?? item.duration;
+  // 优先使用 picUrl；搜索接口仅返回 picId 时，通过 CDN 加密生成图片 URL
+  const cover = al?.picUrl || (al?.picId ? neteasePicUrl(al.picId) : "");
   return {
     id: `${platform}:${sourceId}`,
     title: String(item.name ?? ""),
     artist: ar?.[0]?.name ?? "",
-    cover: al?.picUrl ?? "",
+    cover,
     duration: typeof rawDur === "number" ? rawDur / 1000 : 0,
     platform,
     sourceId,
